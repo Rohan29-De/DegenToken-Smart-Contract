@@ -41,8 +41,10 @@ function redeem(string memory itemName) public {
     require(balanceOf(msg.sender) >= itemPrices[itemName], "Insufficient balance");
 
     _burn(msg.sender, itemPrices[itemName]);
+    redeemedItems[msg.sender][itemName] += 1; // Record the redeemed item
     emit ItemRedeemed(msg.sender, itemName, itemPrices[itemName]);
 }
+
 ```
 * Redeems tokens for the specified itemName.
 * Requires the item to exist and the sender to have enough balance.
@@ -62,12 +64,20 @@ function addItem(string memory itemName, uint256 price) public onlyOwner {
 ```
 * Adds a new item or updates the price of an existing item.
 * Can only be called by the owner.
+5. Checking Redeemed Items
+  ```
+  function getRedeemedItemCount(address player, string memory itemName) public view returns (uint256) {
+    return redeemedItems[player][itemName];
+    }
+  ```
+
+* Returns the number of times a player has redeemed the specified itemName.
 ## Events
-```
 event ItemRedeemed(address indexed player, string itemName, uint256 price);
-```
+
 * Emitted when an item is redeemed.
 * Logs the player's address, the name of the item, and the price
+
 ## Usage
 1. Minting Tokens
    * Only the owner can call the mint function to mint new tokens.
