@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DegenToken is ERC20, Ownable {
     mapping(string => uint256) public itemPrices;
+    mapping(address => mapping(string => uint256)) public redeemedItems; // Tracks the redeemed items for each player
 
     constructor(address initialOwner) ERC20("DegenToken", "DGN") Ownable(initialOwner) {
         // Initialize some items with their prices
@@ -25,8 +26,7 @@ contract DegenToken is ERC20, Ownable {
         require(balanceOf(msg.sender) >= itemPrices[itemName], "Insufficient balance");
 
         _burn(msg.sender, itemPrices[itemName]);
-        // Here you would typically trigger some event or external process
-        // to deliver the in-game item to the player
+        redeemedItems[msg.sender][itemName] += 1; // Record the redeemed item
         emit ItemRedeemed(msg.sender, itemName, itemPrices[itemName]);
     }
 
@@ -38,6 +38,11 @@ contract DegenToken is ERC20, Ownable {
     // Add new items (only owner)
     function addItem(string memory itemName, uint256 price) public onlyOwner {
         itemPrices[itemName] = price;
+    }
+
+    // Check how many items a player has redeemed
+    function getRedeemedItemCount(address player, string memory itemName) public view returns (uint256) {
+        return redeemedItems[player][itemName];
     }
 
     // Event emitted when an item is redeemed
